@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SpectrumShift</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background: #282c34;
+            color: #61dafb;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background: #61dafb;
+            color: #282c34;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover {
+            transform: scale(1.1);
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        /* Add more styles as needed for other sections */
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>Experience Music Like Never Before</h1>
+        <!-- ... previous content ... -->
+
+<!-- Add the Three.js library -->
+<script src="https://threejs.org/build/three.js"></script>
+
+<!-- ... previous content ... -->
+
+<button id="discoverBtn" onclick="openWavePage()">Discover SpectrumShift</button>
+
+<!-- ... previous content ... -->
+
+<script>
+    // Open the Three.js wave visualization page
+    function openWavePage() {
+        window.location.href = 'wave.html'; // assuming the new page is named wave.html
+    }
+
+    // ... previous scripts ...
+</script>
+    </div>
+    <div class="content">
+        <!-- Add other sections such as Stakes, Solution, SuccessStories, etc. -->
+    </div>
+
+    <script>
+        // Sample animation: Shake the button on hover
+        const button = document.getElementById('discoverBtn');
+
+        button.addEventListener('mouseover', () => {
+            button.style.animation = 'shake 0.82s cubic-bezier(.36,.07,.19,.97) both';
+        });
+
+        button.addEventListener('mouseout', () => {
+            button.style.animation = '';
+        });
+
+        // Define the shake animation
+        const styleSheet = document.styleSheets[0];
+        const keyframes = `@keyframes shake {
+            10%, 90% {
+                transform: translate3d(-1px, 0, 0);
+            }
+            
+            20%, 80% {
+                transform: translate3d(2px, 0, 0);
+            }
+
+            30%, 50%, 70% {
+                transform: translate3d(-4px, 0, 0);
+            }
+
+            40%, 60% {
+                transform: translate3d(4px, 0, 0);
+            }
+        }`;
+        styleSheet.insertRule(keyframes, styleSheet.cssRules.length);
+
+        // Add more animations and interactivity as needed
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wave Visualization</title>
+    <script src="https://threejs.org/build/three.js"></script>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script>
+        // Set up the basic Three.js scene, camera, and renderer
+        
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create a wave using a plane geometry and a sine function
+        const geometry = new THREE.PlaneGeometry(5, 5, 32, 32);
+        const vertices = geometry.attributes.position.array;
+
+        for (let i = 0; i < vertices.length; i += 3) { // every 3rd value due to x, y, z components
+            vertices[i + 2] = Math.sin(i);
+        }
+
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide, wireframe: true });
+        const plane = new THREE.Mesh(geometry, material);
+        scene.add(plane);
+
+        camera.position.z = 5;
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Simple rotation to make it interactive
+            plane.rotation.x += 0.01;
+            plane.rotation.y += 0.01;
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+    </script>
+</body>
+</html>
