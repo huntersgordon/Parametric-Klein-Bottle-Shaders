@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced Visualizer</title>
+    <title>Trippy Visualizer</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
     
@@ -17,6 +17,10 @@
 
         canvas {
             display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: -1;
         }
 
         @keyframes gradientBackground {
@@ -54,7 +58,7 @@
             document.body.appendChild(renderer.domElement);
 
             // Particle System
-            const particleCount = 10000;
+            const particleCount = 100000;
             posArray = new Float32Array(particleCount * 3);
             colorArray = new Float32Array(particleCount * 3);
 
@@ -72,13 +76,15 @@
 
             const particleMaterial = new THREE.PointsMaterial({
                 size: 0.05,
-                vertexColors: THREE.VertexColors
+                vertexColors: THREE.VertexColors,
+                blending: THREE.AdditiveBlending, // Additive blending for a trippy effect
+                transparent: true
             });
 
             particleMesh = new THREE.Points(particleGeometry, particleMaterial);
             scene.add(particleMesh);
 
-            const geometry = new THREE.TorusGeometry(4, 0.5, 200, 5000);
+            const geometry = new THREE.TorusGeometry(4, 0.5, 200, 100);
 
             const shaderMaterial = new THREE.ShaderMaterial({
                 vertexShader: `
@@ -110,6 +116,11 @@
             torus.rotation.x += 0.005;
             torus.rotation.y += 0.005;
 
+            // Jiggle the torus using sinusoidal movement
+            const jiggleAmount = 0.2; // Adjust this value for the intensity of the jiggle
+            torus.position.x = Math.sin(time) * jiggleAmount;
+            torus.position.y = Math.cos(time) * jiggleAmount;
+
             for (let i = 0; i < posArray.length; i += 3) {
                 posArray[i + 1] = 5 * Math.sin(posArray[i] + time);
             }
@@ -126,6 +137,15 @@
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
         }
+        window.addEventListener('resize', function () {
+            const newWidth = window.innerWidth;
+            const newHeight = window.innerHeight;
+
+            camera.aspect = newWidth / newHeight;
+            camera.updateProjectionMatrix();
+
+            renderer.setSize(newWidth, newHeight);
+        });
     </script>
 </body>
 </html>
