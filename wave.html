@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Visualizer</title>
-    <script src="https://threejs.org/build/three.js"></script>
+    <title>Advanced Visualizer</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.0/p5.js"></script>
+    
     <style>
         body {
             margin: 0;
@@ -35,50 +38,91 @@
         }
     </style>
 </head>
+
 <body>
     <script>
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+        // Declare global variables
+        let scene, camera, renderer, particleGeometry, torus, particleMesh, time = 0;
 
-        // Particle System
-        const particleGeometry = new THREE.BufferGeometry();
-        const particleCount = 5000;
-        const posArray = new Float32Array(particleCount * 3);
+        function setup() {
+            noCanvas(); // We don't want the default canvas from p5.js
 
-        for(let i = 0; i < particleCount * 3; i++) {
-            posArray[i] = (Math.random() - 0.5) * 10;
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.body.appendChild(renderer.domElement);
+
+            // Particle System
+            particleGeometry = new THREE.BufferGeometry();
+            const particleCount = 10000;
+            const posArray = new Float32Array(particleCount * 3);
+            const colorArray = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                posArray[i] = (Math.random() - 0.5) * 25;
+                posArray[i + 1] = (Math.random() - 0.5) * 25;
+                posArray[i + 2] = (Math.random() - 0.5) * 25;
+
+                // Using noise function here since p5.js should now be fully initialized
+                colorArray[i] = Math.abs(noise(posArray[i]));
+                colorArray[i + 1] = Math.abs(noise(posArray[i + 1]));
+                colorArray[i + 2] = Math.abs(noise(posArray[i + 2]));
+            }
+
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                size: 0.05,
+                vertexColors: THREE.VertexColors
+            });
+
+            particleMesh = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particleMesh);
+
+            const geometry = new THREE.TorusGeometry(4, 0.5, 200, 5000);
+            
+            // Shader material for the torus's unique visual effect
+            const shaderMaterial = new THREE.ShaderMaterial({
+                vertexShader: `
+                    varying vec3 vNormal;
+                    void main() {
+                        vNormal = normalize(normalMatrix * normal);
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    varying vec3 vNormal;
+                    void main() {
+                        gl_FragColor = vec4(vNormal * 0.5 + 0.5, 1.0); 
+                    }
+                `,
+                wireframe: true
+            });
+            torus = new THREE.Mesh(geometry, shaderMaterial);
+            scene.add(torus);
+
+            camera.position.z = 10;
+
+            // Now, initiate the animation loop
+            animate();
         }
-        particleGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-        const particleMaterial = new THREE.PointsMaterial({
-            size: 0.005,
-            color: 'white'
-        });
-        const particleMesh = new THREE.Points(particleGeometry, particleMaterial);
-        scene.add(particleMesh);
-
-        // Central Geometry (Mimicking fractal depth)
-        const geometry = new THREE.TorusGeometry(0.7, 0.2, 16, 100 );
-        const material = new THREE.MeshNormalMaterial({ wireframe: true });
-        const torus = new THREE.Mesh(geometry, material);
-        scene.add(torus);
-
-        camera.position.z = 5;
 
         function animate() {
+            time += 0.01;
+
             torus.rotation.x += 0.005;
             torus.rotation.y += 0.005;
 
-            particleMesh.rotation.y -= 0.002;
-            
+            for (let i = 0; i < particleGeometry.attributes.position.array.length; i += 3) {
+                particleGeometry.attributes.position.array[i + 1] = 5 * Math.sin(particleGeometry.attributes.position.array[i] + time);
+            }
+            particleGeometry.attributes.position.needsUpdate = true;
+
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
         }
-
-        animate();
     </script>
 </body>
 </html>
