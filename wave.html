@@ -41,11 +41,11 @@
 
 <body>
     <script>
-        // Declare global variables
         let scene, camera, renderer, particleGeometry, torus, particleMesh, time = 0;
+        let posArray, colorArray;
 
         function setup() {
-            noCanvas(); // We don't want the default canvas from p5.js
+            noCanvas();
 
             scene = new THREE.Scene();
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -54,22 +54,19 @@
             document.body.appendChild(renderer.domElement);
 
             // Particle System
-            particleGeometry = new THREE.BufferGeometry();
             const particleCount = 10000;
-            const posArray = new Float32Array(particleCount * 3);
-            const colorArray = new Float32Array(particleCount * 3);
+            posArray = new Float32Array(particleCount * 3);
+            colorArray = new Float32Array(particleCount * 3);
 
             for (let i = 0; i < particleCount * 3; i += 3) {
                 posArray[i] = (Math.random() - 0.5) * 25;
                 posArray[i + 1] = (Math.random() - 0.5) * 25;
                 posArray[i + 2] = (Math.random() - 0.5) * 25;
 
-                // Using noise function here since p5.js should now be fully initialized
-                colorArray[i] = Math.abs(noise(posArray[i]));
-                colorArray[i + 1] = Math.abs(noise(posArray[i + 1]));
-                colorArray[i + 2] = Math.abs(noise(posArray[i + 2]));
+                colorArray[i] = colorArray[i + 1] = colorArray[i + 2] = Math.abs(noise(posArray[i], posArray[i + 1], posArray[i + 2]));
             }
 
+            particleGeometry = new THREE.BufferGeometry();
             particleGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
             particleGeometry.setAttribute('color', new THREE.BufferAttribute(colorArray, 3));
 
@@ -82,8 +79,7 @@
             scene.add(particleMesh);
 
             const geometry = new THREE.TorusGeometry(4, 0.5, 200, 5000);
-            
-            // Shader material for the torus's unique visual effect
+
             const shaderMaterial = new THREE.ShaderMaterial({
                 vertexShader: `
                     varying vec3 vNormal;
@@ -105,7 +101,6 @@
 
             camera.position.z = 10;
 
-            // Now, initiate the animation loop
             animate();
         }
 
@@ -115,10 +110,18 @@
             torus.rotation.x += 0.005;
             torus.rotation.y += 0.005;
 
-            for (let i = 0; i < particleGeometry.attributes.position.array.length; i += 3) {
-                particleGeometry.attributes.position.array[i + 1] = 5 * Math.sin(particleGeometry.attributes.position.array[i] + time);
+            for (let i = 0; i < posArray.length; i += 3) {
+                posArray[i + 1] = 5 * Math.sin(posArray[i] + time);
             }
             particleGeometry.attributes.position.needsUpdate = true;
+
+            // Add color variation over time
+            for (let i = 0; i < colorArray.length; i += 3) {
+                colorArray[i] = Math.abs(Math.sin(time + i));
+                colorArray[i + 1] = Math.abs(Math.sin(time + i + 1));
+                colorArray[i + 2] = Math.abs(Math.sin(time + i + 2));
+            }
+            particleGeometry.attributes.color.needsUpdate = true;
 
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
