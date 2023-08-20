@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Wave Visualization</title>
+    <title>Trippy Wave Visualization</title>
     <script src="https://threejs.org/build/three.js"></script>
     <style>
         body { margin: 0; }
@@ -15,16 +15,17 @@
         const TILES = 4; // Number of tiles per row
 
         const scene = new THREE.Scene();
+        
+        // Gradient background setup
+        const gradientColors = [new THREE.Color(0xFF0000), new THREE.Color(0x00FF00), new THREE.Color(0x0000FF)];
+        scene.background = new THREE.Color(0x000000);
+
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
         const geometry = new THREE.PlaneGeometry(5 / TILES, 5 / TILES, 32, 32);
-        const vertices = geometry.attributes.position.array;
-        for (let i = 0; i < vertices.length; i += 3) {
-            vertices[i + 2] = Math.sin(i);
-        }
 
         const colors = new Float32Array(geometry.attributes.position.count * 3);
         geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -63,7 +64,12 @@
             planes.forEach((plane, index) => {
                 const speed = 0.02 + index * 0.001;
                 plane.position.z = 0.5 * Math.sin(Date.now() * speed);
+                plane.rotation.z += Math.sin(Date.now() * speed * 0.05) * 0.01;
             });
+
+            // Change the gradient background color over time
+            const t = (1 + Math.sin(Date.now() * 0.0002)) / 2;
+            scene.background.set(gradientColors[Math.floor(t * (gradientColors.length - 1))]);
 
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
@@ -72,4 +78,4 @@
         animate();
     </script>
 </body>
-</html> 
+</html>
