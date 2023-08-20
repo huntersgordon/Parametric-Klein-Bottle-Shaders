@@ -13,35 +13,48 @@
 <body>
     <script>
         // Set up the basic Three.js scene, camera, and renderer
-        
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // Create a wave using a plane geometry and a sine function
+        // Create the wave geometry
         const geometry = new THREE.PlaneGeometry(5, 5, 32, 32);
         const vertices = geometry.attributes.position.array;
-
-        for (let i = 0; i < vertices.length; i += 3) { // every 3rd value due to x, y, z components
+        for (let i = 0; i < vertices.length; i += 3) {
             vertices[i + 2] = Math.sin(i);
         }
 
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00, side: THREE.DoubleSide, wireframe: true });
+        // Add colors to the geometry
+        const colors = new Float32Array(geometry.attributes.position.count * 3);
+        geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+        const material = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide, wireframe: true });
         const plane = new THREE.Mesh(geometry, material);
         scene.add(plane);
 
         camera.position.z = 5;
 
         function animate() {
-            requestAnimationFrame(animate);
+            // Update colors in a trippy manner
+            const colorAttribute = geometry.attributes.color;
+            for (let i = 0; i < colorAttribute.count; i++) {
+                const color = new THREE.Color(0xffffff);
+                color.setHSL((i / colorAttribute.count) + (Math.sin(i + Date.now() * 0.0005)), 0.5, 0.5);
+                colorAttribute.setXYZ(i, color.r, color.g, color.b);
+            }
+            colorAttribute.needsUpdate = true;
 
-            // Simple rotation to make it interactive
+            // Rotate the plane for a visual effect
             plane.rotation.x += 0.01;
             plane.rotation.y += 0.01;
 
+            // Render the scene
             renderer.render(scene, camera);
+
+            // Keep the animation loop running
+            requestAnimationFrame(animate);
         }
 
         animate();
