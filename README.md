@@ -2,6 +2,9 @@
 
 Welcome to the Parametric Klein Bottle Shaders project! This repository showcases an interactive WebGL visualizer that combines parametric Klein bottle equations, mesmerizing particle systems, and creative shader effects.
 
+<img width="509" alt="Screen Shot 2023-08-20 at 6 37 33 AM" src="https://github.com/huntersgordon/Parametric-Klein-Bottle-Shaders/assets/13263547/27a1314d-722b-4c86-8495-e0f35d40c0dc">
+
+
 ## Overview
 
 The Parametric Klein Bottle Shaders project is a mesmerizing visual experience that combines art and mathematics. It features a WebGL-based animation that brings together a parametric Klein bottle equation, an intricate particle system, and captivating shader effects to create an ever-changing and visually stunning scene.
