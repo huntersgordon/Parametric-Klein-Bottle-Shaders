@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fractal-like Wave Visualization</title>
+    <title>Visualizer</title>
     <script src="https://threejs.org/build/three.js"></script>
     <style>
         body {
@@ -37,29 +37,47 @@
 </head>
 <body>
     <script>
-        let scene = new THREE.Scene();
-        let camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        let renderer = new THREE.WebGLRenderer();
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         
+        const renderer = new THREE.WebGLRenderer();
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
-        
-        let geometry = new THREE.BoxGeometry(1, 1, 1);
-        let material = new THREE.MeshNormalMaterial();
-        let cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
-        
+
+        // Particle System
+        const particleGeometry = new THREE.BufferGeometry();
+        const particleCount = 5000;
+        const posArray = new Float32Array(particleCount * 3);
+
+        for(let i = 0; i < particleCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
+        particleGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
+        const particleMaterial = new THREE.PointsMaterial({
+            size: 0.005,
+            color: 'white'
+        });
+        const particleMesh = new THREE.Points(particleGeometry, particleMaterial);
+        scene.add(particleMesh);
+
+        // Central Geometry (Mimicking fractal depth)
+        const geometry = new THREE.TorusGeometry(0.7, 0.2, 16, 100 );
+        const material = new THREE.MeshNormalMaterial({ wireframe: true });
+        const torus = new THREE.Mesh(geometry, material);
+        scene.add(torus);
+
         camera.position.z = 5;
-        
-        let animate = function () {
-            requestAnimationFrame(animate);
-            
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
+
+        function animate() {
+            torus.rotation.x += 0.005;
+            torus.rotation.y += 0.005;
+
+            particleMesh.rotation.y -= 0.002;
             
             renderer.render(scene, camera);
-        };
-        
+            requestAnimationFrame(animate);
+        }
+
         animate();
     </script>
 </body>
